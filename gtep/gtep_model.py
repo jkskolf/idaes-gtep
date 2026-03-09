@@ -3393,13 +3393,13 @@ def model_create_investment_stages(m, stages):
             if stage != 1
             else pyo.LogicalConstraint.Skip
         )
-    
+
     # Moving away from enforcing disabled status for generators flagged as `in-servce` = False
     # requires additionally enforcing that to be extended, it must have been at some point operational
     # including in stage 1
-    @m.LogicalConstraint(m.stages, m.thermalGenerators)
-    def formerly_operational(m, stage, gen):
-        return m.investmentStage[stage].genOperational[gen].indicator_var.implies(pyo.atleast(1, **[m.investmentStage[s2].genOperational[gen].indicator_var for s2 in range(1, stage)]))
+    # @m.LogicalConstraint(m.stages, m.thermalGenerators)
+    # def formerly_operational(m, stage, gen):
+    #     return m.investmentStage[stage].genOperational[gen].indicator_var.implies(pyo.atleast(1, **[m.investmentStage[s2].genOperational[gen].indicator_var for s2 in range(1, stage)]))
 
     # Storage Constraints same as gen constraints
     if m.config["storage"]:
