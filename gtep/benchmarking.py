@@ -23,8 +23,13 @@ import os
 import json
 import psutil
 from gtep.gtep_data_processing import DataProcessing
+import xpress
+
+xpress.init("C:/Users/jkskolf/xpauth.xpr")
 
 gc.disable()
+
+boolean_dict = {"True": True, "False": False}
 
 if len(sys.argv) > 1:
     num_investment_periods = int(sys.argv[1])
@@ -32,16 +37,16 @@ if len(sys.argv) > 1:
     length_representative_periods = int(sys.argv[3])
     num_commitment_periods = int(sys.argv[4])
     num_dispatch_periods = int(sys.argv[5])
-    thermal_investment = bool(sys.argv[6])
-    renewable_investment = bool(sys.argv[7])
-    storage_investment = bool(sys.argv[8])
+    thermal_investment = boolean_dict[sys.argv[6]]
+    renewable_investment = boolean_dict[sys.argv[7]]
+    storage_investment = boolean_dict[sys.argv[8]]
     flow_model = sys.argv[9]
-    unit_commitment = bool(sys.argv[10])
-    dispatch = bool(sys.argv[11])
+    unit_commitment = boolean_dict[sys.argv[10]]
+    dispatch = boolean_dict[sys.argv[11]]
 else:
     pass
 
-log_folder = "logging_case_" + "_".join([sys.argv[i] for i in range(1, 12)])
+log_folder = "bench_logs/logging_case_" + "_".join([sys.argv[i] for i in range(1, 12)])
 
 if not os.path.exists(log_folder):
     os.makedirs(log_folder)
@@ -61,7 +66,7 @@ with open(log_folder + "/input.log", "w") as fil:
 
 
 data_path = "./gtep/data/Texas_2000"
-# data_path = "./gtep/data/5bus"
+data_path = "./gtep/data/5bus"
 data_object = ExpansionPlanningData()
 data_object.load_prescient(data_path, length_representative_periods)
 
@@ -146,24 +151,24 @@ with open(log_folder + "/memory.log", "a") as fil:
 # import sys
 # sys.exit()
 
-opt = SolverFactory("gurobi_direct_v2")
+opt = SolverFactory("xpress")
 mod_object.timer.toc(
     "let's start to solve -- this is really the start of the handoff to gurobi"
 )
 
-from pyomo.contrib.iis import iis
+# from pyomo.contrib.iis import iis
 
-iis.write_iis(mod_object.model, log_folder + "/infeasible_model.ilp")
+# iis.write_iis(mod_object.model, log_folder + "/infeasible_model.ilp")
 
 
 mod_object.results = opt.solve(
     mod_object.model,
     tee=True,
-    solver_options={
-        "LogFile": log_folder + "/gurobi.log",
-        "MIPGap": 0.01,
-        "Threads": 8,
-    },
+    # solver_options={
+    #     "logfile": log_folder + "/xpress.log",
+    #     # "MIPGap": 0.01,
+    #     # "Threads": 8,
+    # },
 )
 
 # mod_object.model.write('bad_sol.sol')

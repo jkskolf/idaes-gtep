@@ -1300,8 +1300,9 @@ def add_dispatch_constraints(b, disp_per):
             """ Battery Storage added to flow balance constraint """
             balance += sum(b.storageDischarged[bt] for bt in batts)
             balance -= sum(b.storageCharged[bt] for bt in batts)
-
-            balance -= m.loads[bus]  # add new parameter (already includes units)
+            balance -= (
+                c_p.loads.get(bus) or 0
+            )  # add new parameter (already includes units)
             balance += b.loadShed[bus]
             return balance == 0 * u.MW
 
@@ -3125,6 +3126,8 @@ def model_data_references(m):
         ]
         == region
     }
+    # print(m.config)
+    # print(m.config["storage"])
     if m.config["storage"] == True:
         """Battery Storage properties read-in from data"""
         m.storageCapacity = {
@@ -3253,7 +3256,7 @@ def model_data_references(m):
     # "loadShedCost" was renamed "loadShedCostperCurtailment" to avoid
     # repetition. ]
     m.curtailmentCost = pyo.Param(
-        initialize=1,
+        initialize=9999,
         units=u.USD / (u.MW * u.hr),
         mutable=True,
         doc="Curtailment cost",
@@ -3314,9 +3317,6 @@ def model_create_investment_stages(m, stages):
                 .indicator_var.get_associated_binary()
                 + m.investmentStage[stage - 1]
                 .genInstalled[gen]
-                .indicator_var.get_associated_binary()
-                - m.investmentStage[stage - 1]
-                .genRetired[gen]
                 .indicator_var.get_associated_binary()
                 if stage != 1
                 else pyo.Constraint.Skip
