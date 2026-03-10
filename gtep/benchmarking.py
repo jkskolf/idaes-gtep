@@ -153,9 +153,13 @@ mod_object.timer.toc(
     "let's start to solve -- this is really the start of the handoff to gurobi"
 )
 
-from pyomo.contrib.iis import iis
+# from pyomo.contrib.iis import iis
 
-iis.write_iis(mod_object.model, log_folder + "/infeasible_model.ilp")
+# iis.write_iis(mod_object.model, log_folder + "/infeasible_model.ilp")
+
+from pyomo.repn.plugins.lp_writer import LPWriter
+with open('feasibility_test.lp', 'w') as fil:
+    LPWriter.write(mod_object.model, fil)
 
 
 mod_object.results = opt.solve(
