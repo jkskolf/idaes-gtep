@@ -157,9 +157,8 @@ mod_object.timer.toc(
 
 # iis.write_iis(mod_object.model, log_folder + "/infeasible_model.ilp")
 
-from pyomo.repn.plugins.lp_writer import LPWriter
-with open('feasibility_test.lp', 'w') as fil:
-    LPWriter.write(mod_object.model, fil)
+with open("feasibility_test.lp", "w") as fil:
+    mod_object.model.write(fil)
 
 
 mod_object.results = opt.solve(
