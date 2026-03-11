@@ -157,8 +157,8 @@ mod_object.timer.toc(
 
 # iis.write_iis(mod_object.model, log_folder + "/infeasible_model.ilp")
 
-with open("feasibility_test.lp", "w") as fil:
-    mod_object.model.write(fil)
+# with open("feasibility_test.lp", "w") as fil:
+#     mod_object.model.write(fil)
 
 
 mod_object.results = opt.solve(
