@@ -168,19 +168,30 @@ mod_object.timer.toc(
 
 # with open("feasibility_test.lp", "w") as fil:
 #     mod_object.model.write(fil)
+if solver == 'xpress':
+    options_dict = {"logfile":log_folder + "/" + solver + ".log",}
 
-options_dict = {}
-
-mod_object.results = opt.solve(
-    mod_object.model,
-    tee=True,
-    solver_options={
-        "LogFile": log_folder + "/" + solver + ".log",
-        "MIPGap": 0.01,
-        "Threads": 32,
-        # "BarHomogeneous": 1,
-    },
-)
+    mod_object.results = opt.solve(
+        mod_object.model,
+        tee=True,
+        logfile = log_folder + "/" + solver + ".log",
+        solver_options={
+            "MIPRELSTOP": 0.01,
+            "THREADS": 32,
+            # "BarHomogeneous": 1,
+        },
+    )
+else:
+    mod_object.results = opt.solve(
+        mod_object.model,
+        tee=True,
+        solver_options={
+            "LogFile": log_folder + "/" + solver + ".log",
+            "MIPGap": 0.01,
+            "Threads": 32,
+            # "BarHomogeneous": 1,
+        },
+    )
 
 # mod_object.model.write('bad_sol.sol')
 # mod_object.results = opt.solve(mod_object.model)
