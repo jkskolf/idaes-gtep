@@ -48,7 +48,7 @@ if solver == 'xpress':
     import xpress
     xpress.init('xpauth.xpr')
 
-log_folder = "logging_load_case_" + "_".join([sys.argv[i] for i in range(1, 13)])
+log_folder = "logging_load_case_" + solver + "_" + "_".join([sys.argv[i] for i in range(1, 12)])
 
 if not os.path.exists(log_folder):
     os.makedirs(log_folder)
