@@ -67,7 +67,8 @@ with open(log_folder + "/input.log", "w") as fil:
     dispatch
 
 
-data_path = "./gtep/data/Texas_2000"
+# data_path = "./gtep/data/Texas_2000"
+data_path = "./gtep/data/123_Bus_Resil_Weel"
 # data_path = "./gtep/data/5bus"
 data_object = ExpansionPlanningData()
 data_object.load_prescient(data_path, length_representative_periods)
