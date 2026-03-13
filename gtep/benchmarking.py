@@ -167,7 +167,7 @@ mod_object.results = opt.solve(
     solver_options={
         "LogFile": log_folder + "/gurobi.log",
         "MIPGap": 0.01,
-        "Threads": 16,
+        "Threads": 32,
         # "BarHomogeneous": 1,
     },
 )
