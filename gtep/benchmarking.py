@@ -175,11 +175,11 @@ if solver == 'xpress':
         mod_object.model,
         tee=True,
         logfile = log_folder + "/" + solver + ".log",
-        solver_options={
-            "miprelstop": 0.01,
-            "threads": 32,
-            # "BarHomogeneous": 1,
-        },
+        # solver_options={
+        #     "miprelstop": 0.01,
+        #     "threads": 32,
+        #     # "BarHomogeneous": 1,
+        # },
     )
 else:
     mod_object.results = opt.solve(
