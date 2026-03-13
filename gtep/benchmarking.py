@@ -176,8 +176,8 @@ if solver == 'xpress':
         tee=True,
         logfile = log_folder + "/" + solver + ".log",
         solver_options={
-            "MIPRELSTOP": 0.01,
-            "THREADS": 32,
+            "miprelstop": 0.01,
+            "threads": 32,
             # "BarHomogeneous": 1,
         },
     )
