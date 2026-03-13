@@ -44,6 +44,10 @@ if len(sys.argv) > 1:
 else:
     pass
 
+if solver == 'xpress':
+    import xpress
+    xpress.init('xpauth.xpr')
+
 log_folder = "logging_load_case_" + "_".join([sys.argv[i] for i in range(1, 12)])
 
 if not os.path.exists(log_folder):
