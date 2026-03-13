@@ -40,6 +40,7 @@ if len(sys.argv) > 1:
     flow_model = sys.argv[9]
     unit_commitment = truth_map[sys.argv[10]]
     dispatch = truth_map[sys.argv[11]]
+    solver = sys.argv[12]
 else:
     pass
 
@@ -148,7 +149,10 @@ with open(log_folder + "/memory.log", "a") as fil:
 # import sys
 # sys.exit()
 
-opt = SolverFactory("gurobi_direct_v2")
+
+
+# opt = SolverFactory("gurobi_direct_v2")
+opt = SolverFactory(solver)
 mod_object.timer.toc(
     "let's start to solve -- this is really the start of the handoff to gurobi"
 )
@@ -160,12 +164,13 @@ mod_object.timer.toc(
 # with open("feasibility_test.lp", "w") as fil:
 #     mod_object.model.write(fil)
 
+options_dict = {}
 
 mod_object.results = opt.solve(
     mod_object.model,
     tee=True,
     solver_options={
-        "LogFile": log_folder + "/gurobi.log",
+        "LogFile": log_folder + "/" + solver + ".log",
         "MIPGap": 0.01,
         "Threads": 32,
         # "BarHomogeneous": 1,
