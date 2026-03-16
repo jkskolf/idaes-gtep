@@ -165,7 +165,8 @@ mod_object.timer.toc(
 # from pyomo.contrib.iis import iis
 
 # iis.write_iis(mod_object.model, log_folder + "/infeasible_model.ilp")
-
+mod_object.model.write("large_gtep_model.lp")
+raise SystemExit
 # with open("feasibility_test.lp", "w") as fil:
 #     mod_object.model.write(fil)
 if solver == 'xpress':
