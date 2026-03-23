@@ -44,11 +44,14 @@ if len(sys.argv) > 1:
 else:
     pass
 
-if solver == 'xpress':
+if solver == "xpress":
     import xpress
-    xpress.init('xpauth.xpr')
 
-log_folder = "logging_load_case_" + solver + "_" + "_".join([sys.argv[i] for i in range(1, 12)])
+    xpress.init("xpauth.xpr")
+
+log_folder = (
+    "logging_load_case_" + solver + "_" + "_".join([sys.argv[i] for i in range(1, 12)])
+)
 
 if not os.path.exists(log_folder):
     os.makedirs(log_folder)
@@ -155,7 +158,6 @@ with open(log_folder + "/memory.log", "a") as fil:
 # sys.exit()
 
 
-
 # opt = SolverFactory("gurobi_direct_v2")
 opt = SolverFactory(solver)
 mod_object.timer.toc(
@@ -169,13 +171,15 @@ mod_object.model.write("large_gtep_model.lp")
 raise SystemExit
 # with open("feasibility_test.lp", "w") as fil:
 #     mod_object.model.write(fil)
-if solver == 'xpress':
-    options_dict = {"logfile":log_folder + "/" + solver + ".log",}
+if solver == "xpress":
+    options_dict = {
+        "logfile": log_folder + "/" + solver + ".log",
+    }
 
     mod_object.results = opt.solve(
         mod_object.model,
         tee=True,
-        logfile = log_folder + "/" + solver + ".log",
+        logfile=log_folder + "/" + solver + ".log",
         # solver_options={
         #     "miprelstop": 0.01,
         #     "threads": 32,
