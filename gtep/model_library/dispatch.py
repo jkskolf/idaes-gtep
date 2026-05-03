@@ -24,6 +24,7 @@ from pyomo.environ import units as u
 import gtep.model_library.gen as gens
 import gtep.model_library.storage as stor
 import gtep.model_library.transmission as transm
+import gtep.model_library.data_centers as dcs
 
 
 def add_dispatch_variables(b, dispatch_period, paramPeriodLength):
@@ -39,6 +40,10 @@ def add_dispatch_variables(b, dispatch_period, paramPeriodLength):
 
     # Add variables and bounds for generators and storage, when needed
     gens.add_dispatch_generators_variables(m, b)
+
+    # Add variables for data centers, when needed
+    if m.config["data_centers"]:
+        dcs.add_dispatch_data_centers_variables(m, b)
 
     # Add expressions for thermal and renewable generators
     @b.Expression(
@@ -122,6 +127,20 @@ def add_dispatch_variables(b, dispatch_period, paramPeriodLength):
     def curtailmentCostDispatch(b):
         return sum(b.renewableCurtailmentCost[gen] for gen in m.renewableGenerators)
 
+    if m.config["data_centers"]:
+
+        @b.Expression()
+        def dataCenterCostDispatch(b):
+            return sum(b.dataCenterCost[dc] for dc in m.dataCenters)
+
+        @b.Expression()
+        def dataCenterCurtailmentCostDispatch(b):
+            return sum(b.dataCenterCurtailmentCost[dc] for dc in m.dataCenters)
+
+    else:
+        b.dataCenterCostDispatch = 0
+        b.dataCenterCurtailmentCostDispatch = 0
+
     if m.config["storage"]:
         # Add storage variables and constraints. It also includes its
         # operational costs variables.
@@ -145,6 +164,7 @@ def add_dispatch_variables(b, dispatch_period, paramPeriodLength):
             + b.renewableGenerationCostDispatch
             + b.loadShedCostDispatch
             + b.curtailmentCostDispatch
+            + b.dataCenterCostDispatch
             + storage_term
         )
 
@@ -242,6 +262,11 @@ def add_dispatch_constraints(b, disp_per):
             balance -= sum(m.loads[l] for l in loads)
             balance += sum(b.loadShed[bus] for bus in buses)
 
+            # Add data center loads
+            if m.config["data_centers"]:
+                balance -= sum(b.dataCenterLoad[dc] for dc in m.dataCenters)
+                balance += sum(b.dataCenterGeneration[dc] for dc in m.dataCenters)
+
             return balance == 0
 
     else:
@@ -269,6 +294,13 @@ def add_dispatch_constraints(b, disp_per):
                     for bat in m.storage
                     if m.md.data["elements"]["storage"][bat]["bus"] == bus
                 ]
+            dcs_at_bus = []
+            if m.config["data_centers"]:
+                dcs_at_bus = [
+                    dc
+                    for dc in m.dataCenters
+                    if m.md.data["elements"]["data_center"][dc]["bus"] == bus
+                ]
             balance -= sum(b.powerFlow[i] for i in end_points)
             balance += sum(b.powerFlow[i] for i in start_points)
             balance += sum(
@@ -280,6 +312,10 @@ def add_dispatch_constraints(b, disp_per):
             """ Battery Storage added to flow balance constraint """
             balance += sum(b.storageDischarged[bt] for bt in batts)
             balance -= sum(b.storageCharged[bt] for bt in batts)
+
+            # Add data center loads
+            balance -= sum(b.dataCenterLoad[dc] for dc in dcs_at_bus)
+            balance += sum(b.dataCenterGeneration[dc] for dc in dcs_at_bus)
 
             # Add the loads as a parameter (already includes units).
             balance -= m.loads[bus]

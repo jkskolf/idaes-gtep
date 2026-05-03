@@ -19,6 +19,7 @@ Generation and Transmission Expansion Planning (GTEP) Model
 import pyomo.environ as pyo
 from pyomo.environ import units as u
 from math import ceil
+import gtep.model_library.data_centers as dcs
 
 
 def add_representative_period_variables(b, rep_per):

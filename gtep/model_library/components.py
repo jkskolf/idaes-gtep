@@ -20,6 +20,7 @@ import pyomo.environ as pyo
 from pyomo.environ import units as u
 
 import gtep.model_library.storage as stor
+import gtep.model_library.data_centers as dcs
 
 
 def add_model_sets(m, stages, rep_per=["a", "b"], com_per=2, dis_per=2):
@@ -103,6 +104,13 @@ def add_model_sets(m, stages, rep_per=["a", "b"], com_per=2, dis_per=2):
         m.storage = pyo.Set(
             initialize=(ess for ess in m.md.data["elements"]["storage"]),
             doc="Potential storage units",
+        )
+
+    # Data centers as flexible loads
+    if m.md.data["elements"].get("data_center"):
+        m.dataCenters = pyo.Set(
+            initialize=(dc for dc in m.md.data["elements"]["data_center"]),
+            doc="Data centers with flexible load characteristics",
         )
 
 
@@ -512,6 +520,9 @@ def add_model_parameters(m, num_commit, num_dispatch, duration_dispatch):
 
     if m.config["storage"] == True:
         stor.add_storage_params(m)
+
+    if m.config["data_centers"] == True:
+        dcs.add_data_center_params(m)
 
     # Add legacy parameters.These parameters are commented in the
     # original model. Keep here to check if we should include them in

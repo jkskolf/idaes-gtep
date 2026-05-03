@@ -93,6 +93,7 @@ def _get_model_config():
             description="Introduces random dispatch information rather than having fixed values per commitment period.",
         ),
     )
+
     return CONFIG
 
 
@@ -150,6 +151,14 @@ def _add_investment_configs(CONFIG):
             default=False,
             domain=Bool,
             description="Allow transmission switching during dispatch",
+        ),
+    )
+    CONFIG.declare(
+        "data_centers",
+        ConfigValue(
+            default=False,
+            domain=Bool,
+            description="Include data center investment options",
         ),
     )
 

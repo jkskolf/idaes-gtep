@@ -24,6 +24,7 @@ import gtep.model_library.gen as gens
 import gtep.model_library.storage as stor
 import gtep.model_library.transmission as transm
 import gtep.model_library.commitment as commit
+import gtep.model_library.data_centers as dcs
 
 
 def add_investment_params_and_variables(b, investment_stage):
@@ -77,6 +78,9 @@ def add_investment_disjuncts(b):
     if m.config["transmission"]:
         transm.add_transmission_status_disjuncts(b, m.transmission)
 
+    if m.config["data_centers"]:
+        dcs.add_data_center_status_disjuncts(b, m.dataCenters)
+
 
 def add_investment_constraints(
     b,
@@ -94,6 +98,10 @@ def add_investment_constraints(
     # variables based on "in_service" data for the units and the
     # calculation of investment cost.
     gens.add_investment_generators_constraints(m, b, investment_stage)
+
+    # Add data center investment constraints
+    if m.config["data_centers"]:
+        dcs.add_investment_data_centers_constraints(m, b, investment_stage)
 
     if m.config["transmission"]:
         transm.add_investment_transmission_constraints(m, b, investment_stage)
