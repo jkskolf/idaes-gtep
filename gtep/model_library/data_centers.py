@@ -117,6 +117,11 @@ def add_investment_data_centers_constraints(m, b, investment_stage):
             )
         )
 
+def add_representative_period_data_centers_constraints(m, b, rep_per, i_p, commitment_period):
+
+    pass
+
+
 
 def add_data_centers_state_disjuncts(m, b, r_p, i_p, commitment_period):
     """This method defines a Disjunction with disjuncts representing
@@ -150,6 +155,10 @@ def add_data_centers_state_disjuncts(m, b, r_p, i_p, commitment_period):
         ]
 
 
+def add_commitment_data_centers_constraints(m, b, r_p, i_p, comm_per):
+    pass
+
+
 def add_dispatch_data_centers_variables(m, b):
     """Add data center variables to the dispatch block."""
 
@@ -175,6 +184,18 @@ def add_dispatch_data_centers_variables(m, b):
         initialize=0,
         units=u.MW,
         doc="Generation from data center co-located generation",
+    )
+
+    def data_center_curtailment_limits(b, dc, doc="Bounds on data center curtailment"):
+        return (0, m.dataCenterCapacity[dc])
+
+    b.dataCenterCurtailment = pyo.Var(
+        m.dataCenters,
+        domain=pyo.NonNegativeReals,
+        bounds=data_center_curtailment_limits,
+        initialize=0,
+        units=u.MW,
+        doc="Data center curtailment",
     )
 
     @b.Expression(m.dataCenters, doc="Data center operational cost in $")

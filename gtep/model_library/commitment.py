@@ -22,6 +22,7 @@ from pyomo.environ import units as u
 import gtep.model_library.gen as gens
 import gtep.model_library.storage as stor
 import gtep.model_library.scaling as scaling
+import gtep.model_library.data_centers as dcs
 
 
 def add_commitment_parameters(b, commitment_period, investmentStage):
@@ -77,11 +78,13 @@ def add_commitment_disjuncts(b, commitment_period):
         # (charging/discharging/off), when needed.
         gens.add_generators_state_disjuncts(m, b, r_p, i_p, commitment_period)
     else:
-
         gens.generators_status_always_on(m, b)
 
     if m.config["storage"]:
         stor.add_storage_state_disjuncts(m, b, commitment_period)
+
+    if m.config["data_centers"]:
+        dcs.add_data_centers_state_disjuncts(m, b, r_p, i_p, commitment_period)
 
 
 def add_commitment_constraints(b, comm_per):
@@ -154,6 +157,9 @@ def add_commitment_constraints(b, comm_per):
     # needed
     if m.config["storage"]:
         stor.add_commitment_storage_constraints(b)
+
+    if m.config["data_centers"]:
+        dcs.add_commitment_data_centers_constraints(m, b, r_p, i_p, comm_per)
 
 
 def add_investment_commitment_variables(b):
