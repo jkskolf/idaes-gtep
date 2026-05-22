@@ -19,6 +19,40 @@ Expansion Planning (GTEP) Model
 import pyomo.environ as pyo
 from pyomo.environ import units as u
 
+def add_data_center_parameters(m):
+    """This method defines parameters related to data centers in the main
+    model.
+
+    """
+
+    m.dataCenterOwners = pyo.Set(initialize=(m.md.data["elements"]["data_center"][dc]["owner"] for dc in m.md.data["elements"]["data_center"]), doc="Data center owners")
+
+    m.dataCenterCapacity = pyo.Param(
+        m.dataCenters, default=0, units=u.MW, doc="Data center capacity"
+    )
+
+    m.dataCenterGenerationCapacity = pyo.Param(
+        m.dataCenters, default=0, units=u.MW, doc="Data center co-located generation capacity"
+    )
+
+    m.dataCenterOperationalCost = pyo.Param(
+        m.dataCenters, default=0, units=u.USD / u.MWh, doc="Data center operational cost"
+    )
+
+    m.dataCenterGenerationCost = pyo.Param(
+        m.dataCenters,
+        default=0,
+        units=u.USD / u.MWh,
+        doc="Cost of generation from data center co-located generation",
+    )
+
+    m.dataCenterInvestmentCost = pyo.Param(
+        m.dataCenters,
+        default=0,
+        units=u.USD / u.MW,
+        doc="Capital cost for investing in new data center capacity or upgrading existing capacity",
+    )
+
 
 def add_data_center_status_disjuncts(b, data_centers_set):
     """This method declares variables and a Disjunction and its
@@ -112,14 +146,16 @@ def add_investment_data_centers_constraints(m, b, investment_stage):
             + sum(
                 m.dataCenterInvestmentCost[dc]
                 * m.retirementMultiplier.get(dc, 1)
-                * b.dataCenterRetired[dc]
+                * b.dataCenterRetired[dc].indicator_var.get_associated_binary()
                 for dc in m.dataCenters
             )
         )
 
 def add_representative_period_data_centers_constraints(m, b, rep_per, i_p, commitment_period):
 
-    pass
+    @b.Constraint(m.dataCenters, doc = "Data center something.")
+    def data_center_something_constraint(b, dc):
+        return 
 
 
 
@@ -137,14 +173,26 @@ def add_data_centers_state_disjuncts(m, b, r_p, i_p, commitment_period):
     def dataCenterTraining(disj, dc):
         b = disj.parent_block()
 
+        @disj.Constraint(doc="Data center requires maximum load while training.")
+        def data_center_training_load_constraint(d, dispatchPeriod):
+            return b.dataCenterLoad[dc] == m.dataCenterCapacity[dc]
+
     
     @b.Disjunct(m.dataCenters)
     def dataCenterInference(disj, dc):
         b = disj.parent_block()
+
+        @disj.Constraint(doc = "Data center load is between 50\% and 100\% of capacity while running inference.")
+        def data_center_inference_load_constraint(d, dispatchPeriod):
+            return b.dataCenterLoad[dc] >= 0.5 * m.dataCenterCapacity[dc]
     
     @b.Disjunct(m.dataCenters)
     def dataCenterOff(disj, dc):
         b = disj.parent_block()
+
+        @disj.Constraint(doc = "Data center load is zero when offline.")
+        def data_center_off_load_constraint(d, dispatchPeriod):
+            return b.dataCenterLoad[dc] == 0
     
     @b.Disjunction(m.dataCenters)
     def dataCenterOperationalStatus(disj, dc):
@@ -175,7 +223,7 @@ def add_dispatch_data_centers_variables(m, b):
     )
 
     def data_center_generation_limits(b, dc, doc="Bounds on data center generation"):
-        return (0, m.dataCenterCapacity[dc])
+        return (0, m.dataCenterGenerationCapacity[dc])
 
     b.dataCenterGeneration = pyo.Var(
         m.dataCenters,

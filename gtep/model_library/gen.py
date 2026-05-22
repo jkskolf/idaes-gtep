@@ -38,7 +38,7 @@ def add_generators_status_disjuncts(b, thermalgens_set, renewablegens_set):
     genRetired:     Generator is removed from service.
     genDisabled:    Generator is temporarily out of service.
     genExtended:    Generator is upgraded beyond its original capacity.
-
+                                                  
     """
 
     # Declare renewable generators status as variables, instead of

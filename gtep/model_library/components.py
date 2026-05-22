@@ -113,6 +113,8 @@ def add_model_sets(m, stages, rep_per=["a", "b"], com_per=2, dis_per=2):
             doc="Data centers with flexible load characteristics",
         )
 
+        dcs.add_data_center_parameters(m)
+
 
 def add_model_parameters(m, num_commit, num_dispatch, duration_dispatch):
     """Creates and labels all the parameters in the GTEP model. This
